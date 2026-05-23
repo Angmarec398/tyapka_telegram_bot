@@ -1,6 +1,5 @@
 import socket
 
-from aiohttp import TCPConnector
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -13,7 +12,8 @@ from app.middlewares.logging import LoggingMiddleware
 
 
 def create_bot() -> Bot:
-    session = AiohttpSession(connector=TCPConnector(family=socket.AF_INET))
+    session = AiohttpSession()
+    session._connector_init["family"] = socket.AF_INET
     return Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
         session=session,
