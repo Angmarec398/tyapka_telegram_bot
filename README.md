@@ -41,18 +41,3 @@ python -m app.main
 ```bash
 docker compose up --build
 ```
-
-## Интеграция с основным docker-compose
-
-Добавьте в корневой `docker-compose.yml` основного проекта:
-
-```yaml
-  tyapka-bot:
-    build: ./tyapka-telegram-bot
-    env_file: tyapka-telegram-bot/.env
-    depends_on: [backend]
-    networks: [internal]
-    restart: unless-stopped
-```
-
-В `.env` бота укажите `BACKEND_BASE_URL=http://backend:8000`.
