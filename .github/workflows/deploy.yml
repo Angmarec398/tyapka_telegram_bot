@@ -88,11 +88,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
+          envs: DOCKER_USERNAME,DOCKER_TOKEN
           script: |
+            set -e
+            echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
             docker network create tyapka_net 2>/dev/null || true
             cd /home/deploy/bot
             docker compose up -d --build --remove-orphans
-            echo "Containers restarted"
 
   # ── 4. Проверка работы контейнеров ───────────────────────────────────────
   verify:
