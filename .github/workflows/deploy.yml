@@ -62,6 +62,12 @@ jobs:
     steps:
       - name: Write .env from secrets
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_USERNAME: ${{ secrets.TELEGRAM_BOT_USERNAME }}
+          TELEGRAM_USE_WEBHOOK: ${{ secrets.TELEGRAM_USE_WEBHOOK }}
+          INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -83,6 +89,9 @@ jobs:
 
       - name: Build and restart
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
