@@ -1,0 +1,122 @@
+name: Deploy Telegram Bot
+
+on:
+  push:
+    branches: [main]
+
+env:
+  DEPLOY_PATH: /home/deploy/bot
+
+jobs:
+
+  # ── 1. Проверка SSH-подключения к серверу ──────────────────────────────────
+  connect:
+    name: Connect to server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script: |
+            echo "Connected to $(hostname) as $(whoami)"
+            docker --version
+            docker compose version
+
+  # ── 2. Копирование файлов на сервер ───────────────────────────────────────
+  copy:
+    name: Copy files
+    needs: connect
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rsync files to server
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='.venv/' \
+            --exclude='__pycache__/' \
+            --exclude='*.pyc' \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT || '22' }}" \
+            ./ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
+
+  # ── 3. Сборка и перезапуск контейнеров ───────────────────────────────────
+  deploy:
+    name: Restart containers
+    needs: copy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write .env from secrets
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          envs: SECRET_KEY,TELEGRAM_BOT_TOKEN,TELEGRAM_BOT_USERNAME,TELEGRAM_USE_WEBHOOK,INTERNAL_API_TOKEN
+          script: |
+            mkdir -p /home/deploy/bot
+            cat > /home/deploy/bot/.env << EOF
+            SECRET_KEY=$SECRET_KEY
+            TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+            TELEGRAM_BOT_USERNAME=$TELEGRAM_BOT_USERNAME
+            TELEGRAM_USE_WEBHOOK=$TELEGRAM_USE_WEBHOOK
+            INTERNAL_API_TOKEN=$INTERNAL_API_TOKEN
+            BACKEND_BASE_URL=http://backend:8000
+            LOG_LEVEL=INFO
+            EOF
+            chmod 600 /home/deploy/bot/.env
+
+      - name: Build and restart
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script: |
+            docker network create tyapka_net 2>/dev/null || true
+            cd /home/deploy/bot
+            docker compose up -d --build --remove-orphans
+            echo "Containers restarted"
+
+  # ── 4. Проверка работы контейнеров ───────────────────────────────────────
+  verify:
+    name: Verify containers
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check container health
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script: |
+            cd /home/deploy/bot
+            sleep 8
+            echo "=== docker compose ps ==="
+            docker compose ps
+            echo ""
+            echo "=== last 30 lines of logs ==="
+            docker compose logs tyapka-bot --tail=30
+            echo ""
+            echo "=== status check ==="
+            docker compose ps | grep -q "running" \
+              && echo "Bot is running" \
+              || { echo "Container is NOT running"; exit 1; }
