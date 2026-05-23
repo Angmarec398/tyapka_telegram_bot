@@ -3,9 +3,11 @@ services:
     build: .
     env_file: .env
     restart: unless-stopped
-    networks: [tyapka_net]
+    networks: [tyapka_net, egress]
 
 networks:
   tyapka_net:
     external: true
     name: tyapka_net
+  egress:
+    driver: bridge
