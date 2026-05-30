@@ -50,6 +50,7 @@ jobs:
             --exclude='*.pyc' \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='wireguard/' \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT || '22' }}" \
             ./ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
@@ -82,7 +83,7 @@ jobs:
             TELEGRAM_BOT_USERNAME=$TELEGRAM_BOT_USERNAME
             TELEGRAM_USE_WEBHOOK=$TELEGRAM_USE_WEBHOOK
             INTERNAL_API_TOKEN=$INTERNAL_API_TOKEN
-            BACKEND_BASE_URL=http://backend:8000
+            BACKEND_BASE_URL=http://172.19.0.2:8000
             LOG_LEVEL=INFO
             EOF
             chmod 600 /home/deploy/bot/.env
