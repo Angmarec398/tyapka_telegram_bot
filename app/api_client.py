@@ -65,7 +65,7 @@ async def link(token: str, chat_id: int, display_name: str | None) -> dict:
     return await _request(
         "POST",
         "/internal/telegram/link",
-        json={"token": token, "chat_id": chat_id, "display_name": display_name},
+        json={"token": token, "chat_id": str(chat_id), "display_name": display_name},
     )
 
 

@@ -129,6 +129,6 @@ jobs:
             docker compose logs tyapka-bot --tail=30
             echo ""
             echo "=== status check ==="
-            docker compose ps | grep -q "running" \
+            docker compose ps | grep -q "Up" \
               && echo "Bot is running" \
               || { echo "Container is NOT running"; exit 1; }
