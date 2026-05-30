@@ -63,3 +63,9 @@ FREQUENCY_LABELS = {
 }
 
 MUTED_LINE = "\n🔕 Уведомления приостановлены до <b>{until}</b>"
+
+MUTE_DURATION_LABELS: dict[str, str] = {
+    "1h": "1 час",
+    "until_tomorrow": "До завтра",
+    "1w": "На неделю",
+}

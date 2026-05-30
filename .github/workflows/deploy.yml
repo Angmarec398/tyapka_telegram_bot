@@ -67,21 +67,23 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_BOT_USERNAME: ${{ secrets.TELEGRAM_BOT_USERNAME }}
           INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
-          envs: TELEGRAM_BOT_TOKEN,TELEGRAM_BOT_USERNAME,INTERNAL_API_TOKEN
+          envs: TELEGRAM_BOT_TOKEN,TELEGRAM_BOT_USERNAME,INTERNAL_API_TOKEN,BACKEND_BASE_URL
           script: |
             mkdir -p /home/deploy/bot
             cat > /home/deploy/bot/.env << EOF
             TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
             TELEGRAM_BOT_USERNAME=$TELEGRAM_BOT_USERNAME
             INTERNAL_API_TOKEN=$INTERNAL_API_TOKEN
-            BACKEND_BASE_URL=http://172.19.0.2:8000
+            BACKEND_BASE_URL=$BACKEND_BASE_URL
             LOG_LEVEL=INFO
             EOF
+
             chmod 600 /home/deploy/bot/.env
 
       - name: Build and restart
@@ -117,14 +119,19 @@ jobs:
           port: ${{ secrets.SSH_PORT || '22' }}
           script: |
             cd /home/deploy/bot
-            sleep 8
+            echo "Waiting for healthcheck..."
+            for i in $(seq 1 12); do
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' tyapka-bot 2>/dev/null || echo "none")
+              echo "  attempt $i: $STATUS"
+              [ "$STATUS" = "healthy" ] && break
+              [ "$i" = "12" ] && { echo "Container did not become healthy in time"; docker compose logs tyapka-bot --tail=50; exit 1; }
+              sleep 5
+            done
+            echo ""
             echo "=== docker compose ps ==="
             docker compose ps
             echo ""
             echo "=== last 30 lines of logs ==="
             docker compose logs tyapka-bot --tail=30
             echo ""
-            echo "=== status check ==="
-            docker compose ps | grep -q "Up" \
-              && echo "Bot is running" \
-              || { echo "Container is NOT running"; exit 1; }
+            echo "Bot is healthy"

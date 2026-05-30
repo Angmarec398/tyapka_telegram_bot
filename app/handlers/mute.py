@@ -4,15 +4,11 @@ from aiogram.types import CallbackQuery, Message
 
 from app import api_client
 from app.keyboards.mute import mute_keyboard
-from app.texts import MUTE_CHOOSE, MUTED_UNTIL, UNMUTED
+from app.texts import MUTE_CHOOSE, MUTE_DURATION_LABELS, MUTED_UNTIL, UNMUTED
 
 router = Router()
 
-_DURATION_LABELS = {
-    "mute:1h": "1 час",
-    "mute:until_tomorrow": "до завтра",
-    "mute:1w": "на неделю",
-}
+_VALID_DURATIONS = {"1h", "until_tomorrow", "1w"}
 
 
 @router.message(Command("mute"))
@@ -23,14 +19,16 @@ async def cmd_mute(message: Message) -> None:
 @router.callback_query(F.data.startswith("mute:"))
 async def cb_mute(callback: CallbackQuery) -> None:
     duration = callback.data.split(":", 1)[1]
+    if duration not in _VALID_DURATIONS:
+        await callback.answer("Неверное значение", show_alert=True)
+        return
     data = await api_client.mute(callback.message.chat.id, duration)
 
     muted_until = data.get("muted_until", "")
     if muted_until:
         until_str = muted_until[:16].replace("T", " ")
     else:
-        label = _DURATION_LABELS.get(callback.data, duration)
-        until_str = label
+        until_str = MUTE_DURATION_LABELS.get(duration, duration)
 
     await callback.message.edit_text(MUTED_UNTIL.format(until=until_str))
     await callback.answer()

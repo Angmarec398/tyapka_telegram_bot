@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.filters import CommandStart
+from aiogram.filters.command import CommandObject
 from aiogram.types import Message
 
 from app import api_client
@@ -9,15 +10,9 @@ from app.texts import LINKED_OK, TOKEN_EXPIRED, TOKEN_USED, WELCOME_NO_TOKEN
 router = Router()
 
 
-@router.message(CommandStart())
-async def cmd_start(message: Message) -> None:
-    args = message.text.split(maxsplit=1)[1] if message.text and len(message.text.split()) > 1 else ""
-
-    if not args:
-        await message.answer(WELCOME_NO_TOKEN)
-        return
-
-    token = args.strip()
+@router.message(CommandStart(deep_link=True))
+async def cmd_start_with_token(message: Message, command: CommandObject) -> None:
+    token = (command.args or "").strip()
     chat_id = message.chat.id
     display_name = message.from_user.full_name if message.from_user else None
 
@@ -34,3 +29,8 @@ async def cmd_start(message: Message) -> None:
 
     username = data.get("username") or "пользователь"
     await message.answer(LINKED_OK.format(username=username))
+
+
+@router.message(CommandStart())
+async def cmd_start(message: Message) -> None:
+    await message.answer(WELCOME_NO_TOKEN)

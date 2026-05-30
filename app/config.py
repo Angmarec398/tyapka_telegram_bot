@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     BACKEND_BASE_URL: str = "http://localhost:8000"
     INTERNAL_API_TOKEN: str
     LOG_LEVEL: str = "INFO"
-    TELEGRAM_USE_WEBHOOK: bool = False
 
 
 settings = Settings()
