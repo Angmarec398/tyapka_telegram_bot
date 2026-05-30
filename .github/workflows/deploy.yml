@@ -64,24 +64,20 @@ jobs:
       - name: Write .env from secrets
         uses: appleboy/ssh-action@v1.2.0
         env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_BOT_USERNAME: ${{ secrets.TELEGRAM_BOT_USERNAME }}
-          TELEGRAM_USE_WEBHOOK: ${{ secrets.TELEGRAM_USE_WEBHOOK }}
           INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
-          envs: SECRET_KEY,TELEGRAM_BOT_TOKEN,TELEGRAM_BOT_USERNAME,TELEGRAM_USE_WEBHOOK,INTERNAL_API_TOKEN
+          envs: TELEGRAM_BOT_TOKEN,TELEGRAM_BOT_USERNAME,INTERNAL_API_TOKEN
           script: |
             mkdir -p /home/deploy/bot
             cat > /home/deploy/bot/.env << EOF
-            SECRET_KEY=$SECRET_KEY
             TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
             TELEGRAM_BOT_USERNAME=$TELEGRAM_BOT_USERNAME
-            TELEGRAM_USE_WEBHOOK=$TELEGRAM_USE_WEBHOOK
             INTERNAL_API_TOKEN=$INTERNAL_API_TOKEN
             BACKEND_BASE_URL=http://172.19.0.2:8000
             LOG_LEVEL=INFO
