@@ -1,9 +1,26 @@
 services:
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: tyapka-wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./wireguard:/config/wg_confs
+    networks: [tyapka_net, egress]
+    extra_hosts:
+      - "backend:172.19.0.2"
+    restart: unless-stopped
+
   tyapka-bot:
     build: .
     env_file: .env
+    network_mode: "service:wireguard"
+    depends_on:
+      - wireguard
     restart: unless-stopped
-    networks: [tyapka_net, egress]
 
 networks:
   tyapka_net:
