@@ -16,6 +16,7 @@ services:
 
   tyapka-bot:
     build: .
+    container_name: tyapka-bot
     env_file: .env
     network_mode: "service:wireguard"
     depends_on:

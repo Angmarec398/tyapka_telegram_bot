@@ -121,7 +121,8 @@ jobs:
             cd /home/deploy/bot
             echo "Waiting for healthcheck..."
             for i in $(seq 1 12); do
-              STATUS=$(docker inspect --format='{{.State.Health.Status}}' tyapka-bot 2>/dev/null || echo "none")
+              CID=$(docker compose ps -q tyapka-bot 2>/dev/null)
+              STATUS=$([ -n "$CID" ] && docker inspect --format='{{.State.Health.Status}}' "$CID" 2>/dev/null || echo "none")
               echo "  attempt $i: $STATUS"
               [ "$STATUS" = "healthy" ] && break
               [ "$i" = "12" ] && { echo "Container did not become healthy in time"; docker compose logs tyapka-bot --tail=50; exit 1; }
