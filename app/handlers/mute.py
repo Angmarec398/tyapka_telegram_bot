@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 
 from app import api_client
-from app.keyboards.mute import mute_keyboard
+from app.keyboards.mute import MUTE_KEYBOARD
 from app.texts import MUTE_CHOOSE, MUTE_DURATION_LABELS, MUTED_UNTIL, UNMUTED
 
 router = Router()
@@ -13,7 +13,7 @@ _VALID_DURATIONS = {"1h", "until_tomorrow", "1w"}
 
 @router.message(Command("mute"))
 async def cmd_mute(message: Message) -> None:
-    await message.answer(MUTE_CHOOSE, reply_markup=mute_keyboard)
+    await message.answer(MUTE_CHOOSE, reply_markup=MUTE_KEYBOARD)
 
 
 @router.callback_query(F.data.startswith("mute:"))

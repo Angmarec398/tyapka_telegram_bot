@@ -1,3 +1,5 @@
+"""Middleware для централизованной обработки исключений."""
+
 import logging
 from typing import Any, Awaitable, Callable
 
@@ -19,6 +21,8 @@ async def _reply(event: TelegramObject, text: str) -> None:
 
 
 class ErrorMiddleware(BaseMiddleware):
+    """Перехватывает сетевые ошибки и BackendError, отправляет пользователю понятное сообщение."""
+
     async def __call__(
         self,
         handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],

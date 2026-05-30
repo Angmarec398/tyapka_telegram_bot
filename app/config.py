@@ -1,3 +1,5 @@
+"""Конфигурация бота через переменные окружения (pydantic-settings)."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

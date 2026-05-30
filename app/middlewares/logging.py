@@ -1,3 +1,5 @@
+"""Middleware для логирования входящих обновлений."""
+
 import logging
 from typing import Any, Awaitable, Callable
 
@@ -8,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class LoggingMiddleware(BaseMiddleware):
+    """Логирует каждое входящее обновление: update_id, user_id, chat_id, команда или callback."""
+
     async def __call__(
         self,
         handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
@@ -29,6 +33,9 @@ class LoggingMiddleware(BaseMiddleware):
                 chat_id = cb.message.chat.id if cb.message else None
                 command = f"<callback:{cb.data}>"
 
-            logger.info("update=%d user=%s chat=%s cmd=%s", update.update_id, user_id, chat_id, command)
+            logger.info(
+                "update=%d user=%s chat=%s cmd=%s",
+                update.update_id, user_id, chat_id, command,
+            )
 
         return await handler(event, data)

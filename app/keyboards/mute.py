@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from app.texts import MUTE_DURATION_LABELS
 
-mute_keyboard = InlineKeyboardMarkup(
+MUTE_KEYBOARD = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text=MUTE_DURATION_LABELS["1h"], callback_data="mute:1h"),

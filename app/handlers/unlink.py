@@ -12,7 +12,7 @@ from app.texts import UNLINK_CANCEL, UNLINK_CONFIRM, UNLINKED
 
 router = Router()
 
-_confirm_keyboard = InlineKeyboardMarkup(
+_CONFIRM_KEYBOARD = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text="Да, отвязать", callback_data="unlink:yes"),
@@ -24,7 +24,7 @@ _confirm_keyboard = InlineKeyboardMarkup(
 
 @router.message(Command("unlink"))
 async def cmd_unlink(message: Message) -> None:
-    await message.answer(UNLINK_CONFIRM, reply_markup=_confirm_keyboard)
+    await message.answer(UNLINK_CONFIRM, reply_markup=_CONFIRM_KEYBOARD)
 
 
 @router.callback_query(F.data == "unlink:yes")

@@ -55,6 +55,10 @@ jobs:
             ./ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_PATH }}/
 
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
   # ── 3. Сборка и перезапуск контейнеров ───────────────────────────────────
   deploy:
     name: Restart containers

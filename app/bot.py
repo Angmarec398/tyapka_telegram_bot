@@ -1,3 +1,5 @@
+"""Фабрики для создания экземпляров Bot и Dispatcher с зарегистрированными роутерами и middleware."""
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -6,6 +8,7 @@ from app.config import settings
 from app.handlers import help, mute, start, status, unlink
 from app.middlewares.errors import ErrorMiddleware
 from app.middlewares.logging import LoggingMiddleware
+from app.middlewares.throttling import ThrottlingMiddleware
 
 
 def create_bot() -> Bot:
@@ -19,6 +22,7 @@ def create_dispatcher() -> Dispatcher:
     dp = Dispatcher()
 
     dp.update.outer_middleware(LoggingMiddleware())
+    dp.update.outer_middleware(ThrottlingMiddleware())
     dp.update.outer_middleware(ErrorMiddleware())
 
     dp.include_router(start.router)

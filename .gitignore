@@ -1,5 +1,6 @@
 .env
 .venv/
+wireguard/
 __pycache__/
 *.pyc
 *.pyo

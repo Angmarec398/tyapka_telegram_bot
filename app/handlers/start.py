@@ -13,6 +13,9 @@ router = Router()
 @router.message(CommandStart(deep_link=True))
 async def cmd_start_with_token(message: Message, command: CommandObject) -> None:
     token = (command.args or "").strip()
+    if not token or len(token) > 128:
+        await message.answer(TOKEN_EXPIRED)
+        return
     chat_id = message.chat.id
     display_name = message.from_user.full_name if message.from_user else None
 
