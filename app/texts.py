@@ -6,7 +6,7 @@ WELCOME_NO_TOKEN = (
     "зайди на сайт → <b>Профиль → Уведомления → Подключить Telegram</b>."
 )
 
-LINKED_OK = "✅ Привязано к аккаунту <b>@{username}</b>.\n\nДоступные команды: /status, /mute, /unmute, /unlink, /help"
+LINKED_OK = "✅ Привязано к аккаунту <b>@{username}</b>.\n\nДоступные команды: /status, /today, /mute, /unmute, /unlink, /help"
 
 TOKEN_EXPIRED = "❌ Ссылка недействительна или истекла. Сгенерируйте новую на сайте."
 
@@ -39,10 +39,19 @@ UNLINK_CANCEL = "Отмена."
 
 UNLINKED = "✅ Аккаунт отвязан. Повторно подключиться можно на сайте."
 
+TODAY_DIGEST_HEADER = "🌱 <b>Дайджест на сегодня</b>\n\n"
+
+TODAY_DIGEST_EMPTY = "🌱 На сегодня ничего нет — ни поливов, ни событий."
+
+TODAY_WATERING_SECTION = "💧 <b>Полив сегодня:</b>\n"
+
+TODAY_EVENTS_SECTION = "📅 <b>События сегодня:</b>\n"
+
 HELP = (
     "<b>Доступные команды:</b>\n\n"
     "/start — Привязать аккаунт\n"
     "/status — Состояние подключения\n"
+    "/today — Дайджест на сегодняшний день\n"
     "/mute — Приостановить уведомления\n"
     "/unmute — Возобновить уведомления\n"
     "/unlink — Отвязать аккаунт\n"

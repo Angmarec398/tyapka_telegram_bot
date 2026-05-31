@@ -99,3 +99,7 @@ async def unmute(chat_id: int) -> dict[str, Any]:
 
 async def unlink(chat_id: int) -> dict[str, Any]:
     return await _request("DELETE", "/internal/telegram/channel", params={"chat_id": chat_id})
+
+
+async def digest_today(chat_id: int) -> dict[str, Any]:
+    return await _request("GET", "/internal/telegram/digest/today", params={"chat_id": chat_id})
