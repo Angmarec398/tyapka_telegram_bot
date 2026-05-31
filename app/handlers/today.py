@@ -15,6 +15,16 @@ from app.texts import (
 router = Router()
 
 
+def _fmt_ml(ml: int) -> str:
+    if ml >= 1000:
+        return f"{ml / 1000:g} л"
+    return f"{ml} мл"
+
+
+def _fmt_volume(vol_min: int, vol_max: int) -> str:
+    return f"Объём воды: {_fmt_ml(vol_min)} — {_fmt_ml(vol_max)}"
+
+
 @router.message(Command("today"))
 async def cmd_today(message: Message) -> None:
     try:
@@ -35,7 +45,8 @@ async def cmd_today(message: Message) -> None:
     if waterings:
         parts.append(TODAY_WATERING_SECTION)
         for w in waterings:
-            parts.append(f"  • {w['plant_name']} (грядка: {w['bed_name']})\n")
+            vol = _fmt_volume(w.get("vol_min_ml", 0), w.get("vol_max_ml", 0))
+            parts.append(f"  • {w['plant_name']} (грядка: {w['bed_name']}): {vol}\n")
 
     events: list[dict] = data.get("events") or []
     if events:

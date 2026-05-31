@@ -39,13 +39,13 @@ UNLINK_CANCEL = "Отмена."
 
 UNLINKED = "✅ Аккаунт отвязан. Повторно подключиться можно на сайте."
 
-TODAY_DIGEST_HEADER = "🌱 <b>Дайджест на сегодня</b>\n\n"
+TODAY_DIGEST_HEADER = "🌱 <b>Список дел на сегодня</b>\n\n"
 
 TODAY_DIGEST_EMPTY = "🌱 На сегодня ничего нет — ни поливов, ни событий."
 
-TODAY_WATERING_SECTION = "💧 <b>Полив сегодня:</b>\n"
+TODAY_WATERING_SECTION = "💧 <b>Полив:</b>\n"
 
-TODAY_EVENTS_SECTION = "📅 <b>События сегодня:</b>\n"
+TODAY_EVENTS_SECTION = "📅 <b>Дела:</b>\n"
 
 HELP = (
     "<b>Доступные команды:</b>\n\n"
