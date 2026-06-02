@@ -16,14 +16,15 @@ AFTER_LINK_KEYBOARD = InlineKeyboardMarkup(
 # После /status
 STATUS_KEYBOARD = InlineKeyboardMarkup(
     inline_keyboard=[
-        [_BTN_TODAY, _BTN_MUTE],
+        [_BTN_TODAY],
+        [_BTN_MUTE],
         [_BTN_UNLINK],
     ]
 )
 
 # После /today
 TODAY_KEYBOARD = InlineKeyboardMarkup(
-    inline_keyboard=[[_BTN_STATUS, _BTN_MUTE]]
+    inline_keyboard=[[_BTN_STATUS]]
 )
 
 # После /unmute
