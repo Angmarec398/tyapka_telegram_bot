@@ -4,6 +4,7 @@ from aiogram.types import Message
 
 from app import api_client
 from app.api_client import BackendError
+from app.keyboards.nav import TODAY_KEYBOARD
 from app.texts import (
     STATUS_NOT_LINKED,
     TODAY_DIGEST_EMPTY,
@@ -37,7 +38,7 @@ async def cmd_today(message: Message) -> None:
         raise
 
     if not data.get("has_content"):
-        await message.answer(TODAY_DIGEST_EMPTY)
+        await message.answer(TODAY_DIGEST_EMPTY, reply_markup=TODAY_KEYBOARD)
         return
 
     parts: list[str] = [TODAY_DIGEST_HEADER]
@@ -65,4 +66,4 @@ async def cmd_today(message: Message) -> None:
         for ev in events:
             parts.append(f"  • {ev['title']}\n")
 
-    await message.answer("".join(parts))
+    await message.answer("".join(parts), reply_markup=TODAY_KEYBOARD)

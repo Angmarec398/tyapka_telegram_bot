@@ -5,7 +5,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from app.config import settings
-from app.handlers import help, mute, start, status, today, unlink
+from app.handlers import help, mute, nav, start, status, today, unlink
 from app.middlewares.errors import ErrorMiddleware
 from app.middlewares.logging import LoggingMiddleware
 from app.middlewares.throttling import ThrottlingMiddleware
@@ -30,6 +30,7 @@ def create_dispatcher() -> Dispatcher:
     dp.include_router(today.router)
     dp.include_router(mute.router)
     dp.include_router(unlink.router)
+    dp.include_router(nav.router)
     dp.include_router(help.router)
 
     return dp

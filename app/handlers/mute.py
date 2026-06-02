@@ -4,6 +4,7 @@ from aiogram.types import CallbackQuery, Message
 
 from app import api_client
 from app.keyboards.mute import MUTE_KEYBOARD
+from app.keyboards.nav import AFTER_MUTE_KEYBOARD, AFTER_UNMUTE_KEYBOARD
 from app.texts import MUTE_CHOOSE, MUTE_DURATION_LABELS, MUTED_UNTIL, UNMUTED
 
 router = Router()
@@ -30,11 +31,11 @@ async def cb_mute(callback: CallbackQuery) -> None:
     else:
         until_str = MUTE_DURATION_LABELS.get(duration, duration)
 
-    await callback.message.edit_text(MUTED_UNTIL.format(until=until_str))
+    await callback.message.edit_text(MUTED_UNTIL.format(until=until_str), reply_markup=AFTER_MUTE_KEYBOARD)
     await callback.answer()
 
 
 @router.message(Command("unmute"))
 async def cmd_unmute(message: Message) -> None:
     await api_client.unmute(message.chat.id)
-    await message.answer(UNMUTED)
+    await message.answer(UNMUTED, reply_markup=AFTER_UNMUTE_KEYBOARD)

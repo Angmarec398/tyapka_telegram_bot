@@ -5,6 +5,7 @@ from aiogram.types import Message
 
 from app import api_client
 from app.api_client import BackendError
+from app.keyboards.nav import AFTER_LINK_KEYBOARD
 from app.texts import LINKED_OK, TOKEN_EXPIRED, TOKEN_USED, WELCOME_NO_TOKEN
 
 router = Router()
@@ -31,7 +32,7 @@ async def cmd_start_with_token(message: Message, command: CommandObject) -> None
         return
 
     username = data.get("username") or "пользователь"
-    await message.answer(LINKED_OK.format(username=username))
+    await message.answer(LINKED_OK.format(username=username), reply_markup=AFTER_LINK_KEYBOARD)
 
 
 @router.message(CommandStart())

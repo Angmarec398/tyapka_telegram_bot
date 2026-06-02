@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from app import api_client
+from app.keyboards.nav import STATUS_KEYBOARD
 from app.texts import (
     FREQUENCY_LABELS,
     MUTED_LINE,
@@ -52,4 +53,4 @@ async def cmd_status(message: Message) -> None:
         calendar=_yn(flags.get("calendar", user.get("notify_calendar", False))),
         mute_line=mute_line,
     )
-    await message.answer(text)
+    await message.answer(text, reply_markup=STATUS_KEYBOARD)
