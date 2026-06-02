@@ -48,8 +48,8 @@ async def cmd_status(message: Message) -> None:
         window_end=window.get("end") or user.get("notify_window_end") or "—",
         frequency=frequency,
         watering=_yn(flags.get("watering", user.get("notify_watering", False))),
+        harvest=_yn(flags.get("harvest", user.get("notify_harvest", False))),
         calendar=_yn(flags.get("calendar", user.get("notify_calendar", False))),
-        notes=_yn(flags.get("notes", user.get("notify_notes", False))),
         mute_line=mute_line,
     )
     await message.answer(text)

@@ -21,8 +21,8 @@ STATUS_LINKED = (
     "📊 Частота: <b>{frequency}</b>\n\n"
     "<b>Подписки:</b>\n"
     "💧 Поливы: {watering}\n"
-    "📅 События: {calendar}\n"
-    "📝 Заметки: {notes}\n"
+    "🧺 Сбор урожая: {harvest}\n"
+    "📅 Дела: {calendar}\n"
     "{mute_line}"
 )
 
