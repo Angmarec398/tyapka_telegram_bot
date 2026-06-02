@@ -55,4 +55,9 @@ docker compose up -d                        # detached
 - **Centralized error handling** — all exceptions are caught in `ErrorMiddleware`; handlers raise freely.
 - **Throttling** — `ThrottlingMiddleware` limits to 1 request/second per user (in-memory).
 - **Single source of truth for texts** — all user-facing strings and labels live in `app/texts.py`.
+- **Inline navigation** — `app/keyboards/nav.py` defines navigation keyboards; `app/handlers/nav.py` handles all `nav:*` callbacks, reusing the same display logic as the command handlers. `/help` is the only command without Inline-buttons.
 - **Secrets** — `BACKEND_BASE_URL` and all credentials are stored in GitHub Secrets, never hardcoded in CI/CD.
+
+## Last reviewed commit
+
+`7dbbc7a` — Корректировка кнопок (2026-06-02)
