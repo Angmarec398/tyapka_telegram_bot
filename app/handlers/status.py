@@ -37,8 +37,12 @@ async def cmd_status(message: Message) -> None:
     if muted_until:
         mute_line = MUTED_LINE.format(until=muted_until[:16].replace("T", " "))
 
+    notifications_enabled = user.get("notifications_enabled", True)
+    enabled_label = "✅ Включены" if notifications_enabled else "❌ Выключены"
+
     text = STATUS_LINKED.format(
         username=user.get("username") or "—",
+        notifications_enabled=enabled_label,
         timezone=data.get("timezone") or user.get("timezone") or "—",
         window_start=window.get("start") or user.get("notify_window_start") or "—",
         window_end=window.get("end") or user.get("notify_window_end") or "—",
