@@ -45,6 +45,8 @@ TODAY_DIGEST_EMPTY = "🌱 На сегодня ничего нет — ни по
 
 TODAY_WATERING_SECTION = "💧 <b>Полив:</b>\n"
 
+TODAY_HARVEST_SECTION = "🧺 <b>Сбор урожая:</b>\n"
+
 TODAY_EVENTS_SECTION = "📅 <b>Дела:</b>\n"
 
 HELP = (

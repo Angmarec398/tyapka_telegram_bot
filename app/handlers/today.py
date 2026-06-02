@@ -9,6 +9,7 @@ from app.texts import (
     TODAY_DIGEST_EMPTY,
     TODAY_DIGEST_HEADER,
     TODAY_EVENTS_SECTION,
+    TODAY_HARVEST_SECTION,
     TODAY_WATERING_SECTION,
 )
 
@@ -48,9 +49,17 @@ async def cmd_today(message: Message) -> None:
             vol = _fmt_volume(w.get("vol_min_ml", 0), w.get("vol_max_ml", 0))
             parts.append(f"  • {w['plant_name']} (грядка: {w['bed_name']}): {vol}\n")
 
+    harvests: list[dict] = data.get("harvests") or []
+    if harvests:
+        if waterings:
+            parts.append("\n")
+        parts.append(TODAY_HARVEST_SECTION)
+        for h in harvests:
+            parts.append(f"  • {h['plant_name']} (грядка: {h['bed_name']})\n")
+
     events: list[dict] = data.get("events") or []
     if events:
-        if waterings:
+        if waterings or harvests:
             parts.append("\n")
         parts.append(TODAY_EVENTS_SECTION)
         for ev in events:
