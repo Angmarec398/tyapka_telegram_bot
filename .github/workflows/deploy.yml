@@ -9,9 +9,69 @@ env:
 
 jobs:
 
-  # ── 1. Проверка SSH-подключения к серверу ──────────────────────────────────
+  # ── 1. Проверка доступности серверов Telegram ──────────────────────────────
+  testing:
+    name: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Telegram API availability through WireGuard tunnel
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          envs: TELEGRAM_BOT_TOKEN
+          script: |
+            set -e
+
+            # tyapka-bot работает с network_mode: service:wireguard, поэтому весь его
+            # трафик к Telegram идёт через туннель. Чтобы протестировать именно этот
+            # путь, запускаем проверки в сетевом namespace WireGuard-контейнера.
+            WG=tyapka-wireguard
+
+            if ! docker ps --format '{{.Names}}' | grep -qx "$WG"; then
+              echo "WireGuard container '$WG' is not running — skipping tunnel test (first deploy?)"
+              exit 0
+            fi
+
+            # curl с собственным образом, присоединённый к namespace туннеля
+            wg_curl() {
+              docker run --rm --network "container:$WG" curlimages/curl:8.11.1 "$@"
+            }
+
+            echo "=== WireGuard interface status ==="
+            docker exec "$WG" wg show || echo "  (wg show unavailable — продолжаем по факту доступности)"
+
+            echo ""
+            echo "=== HTTPS reachability through tunnel: https://api.telegram.org ==="
+            CODE=$(wg_curl -sS -o /dev/null -w '%{http_code}' --max-time 15 https://api.telegram.org/ || echo "000")
+            echo "HTTP status: $CODE"
+            if [ "$CODE" = "000" ]; then
+              echo "Cannot reach https://api.telegram.org through the WireGuard tunnel"
+              exit 1
+            fi
+
+            echo ""
+            echo "=== Bot API: getMe through tunnel ==="
+            RESP=$(wg_curl -sS --max-time 15 "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe" \
+              || echo '{"ok":false,"description":"curl_failed"}')
+            if echo "$RESP" | grep -q '"ok":true'; then
+              echo "getMe OK — token valid and Telegram reachable through the tunnel"
+            else
+              echo "getMe failed through tunnel: $RESP"
+              exit 1
+            fi
+
+            echo ""
+            echo "Telegram is reachable through the WireGuard tunnel"
+
+  # ── 2. Проверка SSH-подключения к серверу ──────────────────────────────────
   connect:
     name: Connect to server
+    needs: testing
     runs-on: ubuntu-latest
     steps:
       - name: Test SSH connection
@@ -26,7 +86,7 @@ jobs:
             docker --version
             docker compose version
 
-  # ── 2. Копирование файлов на сервер ───────────────────────────────────────
+  # ── 3. Копирование файлов на сервер ───────────────────────────────────────
   copy:
     name: Copy files
     needs: connect
@@ -59,7 +119,7 @@ jobs:
         if: always()
         run: rm -f ~/.ssh/deploy_key
 
-  # ── 3. Сборка и перезапуск контейнеров ───────────────────────────────────
+  # ── 4. Сборка и перезапуск контейнеров ───────────────────────────────────
   deploy:
     name: Restart containers
     needs: copy
@@ -108,7 +168,7 @@ jobs:
             cd /home/deploy/bot
             docker compose up -d --build --remove-orphans
 
-  # ── 4. Проверка работы контейнеров ───────────────────────────────────────
+  # ── 5. Проверка работы контейнеров ───────────────────────────────────────
   verify:
     name: Verify containers
     needs: deploy
