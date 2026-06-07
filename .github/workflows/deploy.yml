@@ -18,12 +18,14 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || '22' }}
-          envs: TELEGRAM_BOT_TOKEN
+          envs: TELEGRAM_BOT_TOKEN,DOCKER_USERNAME,DOCKER_TOKEN
           script: |
             set -e
 
@@ -35,6 +37,13 @@ jobs:
             if ! docker ps --format '{{.Names}}' | grep -qx "$WG"; then
               echo "WireGuard container '$WG' is not running — skipping tunnel test (first deploy?)"
               exit 0
+            fi
+
+            # Логинимся в Docker Hub теми же секретами, что и деплой: без авторизации
+            # pull образа curl упирается в unauthenticated rate limit. После первого
+            # успешного pull образ кэшируется на сервере и больше не тянется.
+            if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_TOKEN" ]; then
+              echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
             fi
 
             # curl с собственным образом, присоединённый к namespace туннеля
